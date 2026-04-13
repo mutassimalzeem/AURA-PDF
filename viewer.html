@@ -1,0 +1,63 @@
+// Service Worker - Handles PDF file interception
+chrome.runtime.onInstalled.addListener(() => {
+  console.log('PDF Annotator Pro installed');
+});
+
+const VIEWER_PAGE = 'viewer.html';
+
+function isOwnExtensionUrl(url) {
+  // Any URL from our own extension (chrome-extension://<id>/...)
+  return url.startsWith(chrome.runtime.getURL(''));
+}
+
+function isPdfUrl(url) {
+  try {
+    // Decode the URL fully before checking — handles double-encoded cases
+    const decoded = decodeURIComponent(url);
+    return decoded.toLowerCase().endsWith('.pdf');
+  } catch {
+    return url.toLowerCase().endsWith('.pdf');
+  }
+}
+
+function redirectToPdfViewer(tabId, pdfUrl) {
+  const viewerUrl = chrome.runtime.getURL(VIEWER_PAGE) + '?file=' + encodeURIComponent(pdfUrl);
+  chrome.tabs.update(tabId, { url: viewerUrl });
+}
+
+// Handle http/https PDF links
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status !== 'loading') return;
+  const url = changeInfo.url;
+  if (!url) return;
+
+  // CRITICAL: Never redirect our own extension pages
+  if (isOwnExtensionUrl(url)) return;
+
+  if (isPdfUrl(url)) {
+    redirectToPdfViewer(tabId, url);
+  }
+});
+
+// Handle file:// PDFs
+if (chrome.webNavigation) {
+  chrome.webNavigation.onBeforeNavigate.addListener((details) => {
+    // Only intercept top-level frames, not iframes
+    if (details.frameId !== 0) return;
+
+    const url = details.url;
+
+    // CRITICAL: Never intercept our own extension pages
+    if (isOwnExtensionUrl(url)) return;
+
+    if (isPdfUrl(url)) {
+      redirectToPdfViewer(details.tabId, url);
+    }
+  }, {
+    url: [
+      { schemes: ['file'] },
+      { schemes: ['http'] },
+      { schemes: ['https'] }
+    ]
+  });
+}

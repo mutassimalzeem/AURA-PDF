@@ -1,0 +1,356 @@
+/* PDF Viewer Styles */
+.viewer-container {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  background: var(--bg-primary);
+}
+
+.viewer-container.sidebar-open {
+  right: 280px;
+}
+
+/* PDF Page Container */
+.pdf-page-container {
+  position: relative;
+  margin: var(--spacing-xl) auto;
+  box-shadow: 0 4px 16px var(--shadow-color);
+  background: #fff;
+}
+
+.pdf-page-container canvas {
+  display: block;
+}
+
+/* Annotation Layer */
+.annotation-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.annotation-layer.interactive {
+  pointer-events: auto;
+}
+
+/* Highlight Annotation */
+.annotation-highlight {
+  position: absolute;
+  mix-blend-mode: multiply;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.annotation-highlight:hover {
+  opacity: 0.8;
+}
+
+/* Underline Annotation */
+.annotation-underline {
+  position: absolute;
+  height: 2px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Strike-through Annotation */
+.annotation-strikethrough {
+  position: absolute;
+  height: 2px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Text Annotation */
+.annotation-text-note {
+  position: absolute;
+  min-width: 150px;
+  max-width: 300px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  pointer-events: auto;
+  cursor: move;
+  z-index: 100;
+}
+
+.annotation-text-note::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 20px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid var(--border-color);
+}
+
+.annotation-text-note textarea {
+  width: 100%;
+  min-height: 80px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.annotation-text-note textarea:focus {
+  border-color: var(--accent-primary);
+  outline: none;
+}
+
+.annotation-text-note .note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.annotation-text-note .note-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.annotation-text-note .note-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.annotation-text-note .note-delete:hover {
+  color: var(--accent-error);
+  background: var(--bg-elevated);
+}
+
+/* Drawing Annotation */
+.annotation-drawing {
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* Selection Rectangle */
+.selection-rectangle {
+  position: absolute;
+  border: 2px dashed var(--accent-primary);
+  background: rgba(122, 162, 247, 0.1);
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Text Selection Mode */
+.text-select-mode .annotation-layer {
+  pointer-events: auto;
+}
+
+/* Loading State */
+.loading-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  margin-top: var(--spacing-lg);
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+/* Error State */
+.error-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  padding: var(--spacing-xl);
+}
+
+.error-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--accent-error);
+  margin-bottom: var(--spacing-lg);
+}
+
+.error-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.error-message {
+  font-size: 16px;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 400px;
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Drop Zone */
+.drop-zone {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  z-index: 50;
+}
+
+.drop-zone-content {
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+.drop-zone-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--spacing-xl);
+  color: var(--accent-primary);
+  opacity: 0.6;
+}
+
+.drop-zone-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.drop-zone-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+.drop-zone-hint {
+  font-size: 14px;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-color);
+}
+
+/* Drag Over State */
+.drop-zone.drag-over {
+  background: var(--bg-secondary);
+}
+
+.drop-zone.drag-over .drop-zone-content {
+  transform: scale(1.05);
+  transition: transform var(--transition-fast);
+}
+
+/* Open File Button */
+.open-file-btn {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  transition: all var(--transition-fast);
+  margin-bottom: var(--spacing-xl);
+}
+
+.open-file-btn:hover {
+  background: var(--accent-tertiary);
+  transform: translateY(-2px);
+}
+
+.open-file-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Hidden file input */
+#file-input {
+  display: none;
+}
+
+/* ── Dark Mode ──────────────────────────────────────────────── */
+
+/* Smooth transition when toggling modes */
+.pdf-page-container canvas {
+  display: block;
+  transition: filter 0.25s ease;
+}
+
+/* Dark mode: container gets a deep grey backdrop */
+.viewer-container[data-dark-mode="dark"] {
+  background: #0d0e14;
+}
+.viewer-container[data-dark-mode="dark"] .pdf-page-container {
+  background: #1a1b26;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* Sepia: warm parchment backdrop */
+.viewer-container[data-dark-mode="sepia"] {
+  background: #1c1610;
+}
+.viewer-container[data-dark-mode="sepia"] .pdf-page-container {
+  background: #2a2218;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Blend mode fix: highlights stay readable in dark mode */
+.viewer-container[data-dark-mode="dark"] .annotation-highlight,
+.viewer-container[data-dark-mode="sepia"] .annotation-highlight {
+  mix-blend-mode: screen;
+}
+
+/* Dark mode label badge that appears on the button */
+#btn-dark-mode[data-dark-mode="dark"] {
+  color: var(--accent-tertiary);
+}
+#btn-dark-mode[data-dark-mode="sepia"] {
+  color: var(--accent-warning);
+}
