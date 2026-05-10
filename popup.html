@@ -1,74 +1,165 @@
-// Download PDF.js for offline use
-// Run this script to download PDF.js files locally
-
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
-
-const PDFJS_VERSION = '3.11.174';
-const BASE_URL = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}`;
-
-const files = [
-  'pdf.min.js',
-  'pdf.worker.min.js'
-];
-
-const libDir = path.join(__dirname, '..', 'lib');
-
-// Create lib directory if it doesn't exist
-if (!fs.existsSync(libDir)) {
-  fs.mkdirSync(libDir, { recursive: true });
-  console.log('Created lib/ directory');
-}
-
-function downloadFile(url, dest) {
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(dest);
-    
-    https.get(url, (response) => {
-      if (response.statusCode === 301 || response.statusCode === 302) {
-        // Handle redirect
-        https.get(response.headers.location, (redirectResponse) => {
-          redirectResponse.pipe(file);
-          file.on('finish', () => {
-            file.close();
-            console.log(`✓ Downloaded: ${path.basename(dest)}`);
-            resolve();
-          });
-        }).on('error', (err) => {
-          fs.unlink(dest, () => {});
-          reject(err);
-        });
-      } else {
-        response.pipe(file);
-        file.on('finish', () => {
-          file.close();
-          console.log(`✓ Downloaded: ${path.basename(dest)}`);
-          resolve();
-        });
-      }
-    }).on('error', (err) => {
-      fs.unlink(dest, () => {});
-      reject(err);
-    });
-  });
-}
-
-async function downloadAll() {
-  console.log(`Downloading PDF.js v${PDFJS_VERSION}...\n`);
-  
-  for (const file of files) {
-    const url = `${BASE_URL}/${file}`;
-    const dest = path.join(libDir, file);
-    
-    try {
-      await downloadFile(url, dest);
-    } catch (error) {
-      console.error(`✗ Failed to download ${file}:`, error.message);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Annotator Pro</title>
+  <style>
+    :root {
+      --bg-primary: #1a1b26;
+      --bg-secondary: #24283b;
+      --bg-tertiary: #292e42;
+      --accent-primary: #7aa2f7;
+      --accent-secondary: #bb9af7;
+      --text-primary: #c0caf5;
+      --text-secondary: #a9b1d6;
+      --border-color: #3b4261;
     }
-  }
-  
-  console.log('\nDone! PDF.js files are now in lib/ directory');
-}
 
-downloadAll();
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 280px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .popup-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .popup-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent-primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .popup-icon svg {
+      width: 20px;
+      height: 20px;
+      color: var(--bg-primary);
+    }
+
+    .popup-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .popup-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .popup-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 14px;
+    }
+
+    .popup-btn:hover {
+      background: var(--bg-primary);
+      border-color: var(--accent-primary);
+    }
+
+    .popup-btn svg {
+      width: 18px;
+      height: 18px;
+      color: var(--accent-primary);
+    }
+
+    .popup-btn.primary {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: var(--bg-primary);
+    }
+
+    .popup-btn.primary svg {
+      color: var(--bg-primary);
+    }
+
+    .popup-btn.primary:hover {
+      background: var(--accent-secondary);
+      border-color: var(--accent-secondary);
+    }
+
+    .popup-footer {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="popup-header">
+    <div class="popup-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14,2 14,8 20,8"/>
+      </svg>
+    </div>
+    <div class="popup-title">PDF Annotator Pro</div>
+  </div>
+
+  <div class="popup-actions">
+    <button class="popup-btn primary" id="open-pdf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14,2 14,8 20,8"/>
+        <line x1="12" y1="18" x2="12" y2="12"/>
+        <line x1="9" y1="15" x2="15" y2="15"/>
+      </svg>
+      Open PDF File
+    </button>
+
+    <button class="popup-btn" id="recent-files">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12,6 12,12 16,14"/>
+      </svg>
+      Recent Files
+    </button>
+
+    <button class="popup-btn" id="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      Settings
+    </button>
+  </div>
+
+  <div class="popup-footer">
+    v1.1.0 - Modern PDF Annotation
+  </div>
+
+  <script src="js/popup.js"></script>
+</body>
+</html>

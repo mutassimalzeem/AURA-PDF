@@ -354,3 +354,64 @@
 #btn-dark-mode[data-dark-mode="sepia"] {
   color: var(--accent-warning);
 }
+
+/* ── Fix 8: PDF.js Text Layer — text selection ───────────────── */
+.pdf-text-layer {
+  position: absolute;
+  top: 0; left: 0;
+  overflow: hidden;
+  opacity: 0.25;           /* near-invisible but selectable */
+  line-height: 1;
+  pointer-events: auto;    /* toggled to none when annotation tool is active */
+  /* Inherit font rendering from PDF.js */
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* PDF.js injects <span> elements; make them transparent but selectable */
+.pdf-text-layer span,
+.pdf-text-layer br {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+/* Selection highlight */
+.pdf-text-layer ::selection {
+  background: rgba(122, 162, 247, 0.35);
+  color: transparent;
+}
+
+/* Hide text layer when any annotation tool is active */
+.pdf-text-layer[style*="pointer-events: none"],
+.pdf-text-layer[style*="pointer-events:none"] {
+  opacity: 0;
+}
+
+/* ── Fix 9: PDF.js Annotation/Link Layer ─────────────────────── */
+.pdf-link-layer {
+  position: absolute;
+  top: 0; left: 0;
+  overflow: hidden;
+  pointer-events: auto;   /* toggled to none when annotation tool is active */
+}
+
+/* PDF.js injects <section> + <a> for links */
+.pdf-link-layer section {
+  position: absolute;
+}
+
+.pdf-link-layer a {
+  position: absolute;
+  display: block;
+  color: transparent;       /* invisible overlay — the PDF canvas shows the visual */
+  cursor: pointer;
+}
+
+.pdf-link-layer a:hover {
+  background: rgba(122, 162, 247, 0.15);
+  border-radius: 2px;
+  outline: 1px solid rgba(122, 162, 247, 0.4);
+}

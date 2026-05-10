@@ -1,1 +1,18 @@
-Nothing should be ignored in this case, as the changes only include source code files (.js, .json) without any build artifacts, dependencies, or temporary files.
+# OS and IDE artifacts
+.DS_Store
+Thumbs.db
+*.log
+
+# Node modules
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build output
+dist/
+build/
